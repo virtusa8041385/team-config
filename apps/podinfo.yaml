@@ -1,65 +1,21 @@
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: podinfo
-  namespace: team-a
+  name: nginx
   labels:
-    app: podinfo
-  annotations:
-    flux.weave.works/automated: "true"
-    flux.weave.works/tag.init: regex:^3.10.*
-    flux.weave.works/tag.podinfod: semver:~2.1
+    app: nginx
 spec:
-  strategy:
-    rollingUpdate:
-      maxUnavailable: 0
-    type: RollingUpdate
+  replicas: 2
   selector:
     matchLabels:
-      app: podinfo
+      app: nginx
   template:
     metadata:
-      annotations:
-        prometheus.io/scrape: "true"
       labels:
-        app: podinfo
+        app: nginx
     spec:
-      initContainers:
-      - name: init
-        image: alpine:3.10.1
-        command:
-        - sleep
-        - "1"
       containers:
-      - name: podinfod
-        image: stefanprodan/podinfo:2.1.0
-        imagePullPolicy: IfNotPresent
+      - name: nginx
+        image: nginx:1.15.4
         ports:
-        - containerPort: 9898
-          name: http
-          protocol: TCP
-        command:
-        - ./podinfo
-        - --port=9898
-        - --level=info
-        - --random-delay=false
-        - --random-error=false
-        env:
-        - name: PODINFO_UI_MESSAGE
-          value: "Greetings human!"
-        livenessProbe:
-          httpGet:
-            path: /healthz
-            port: 9898
-        readinessProbe:
-          httpGet:
-            path: /readyz
-            port: 9898
-        resources:
-          limits:
-            cpu: 1000m
-            memory: 128Mi
-          requests:
-            cpu: 10m
-            memory: 64Mi
+        - containerPort: 80
